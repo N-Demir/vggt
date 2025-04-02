@@ -23,7 +23,7 @@
       }
     },
     "mounts": [
-      "source=/home/ndemir/vggt,target=/workspace/vggt,type=bind,consistency=cached",
+      "source=/home/ndemir/gsplat/dependencies/vggt,target=/workspace/vggt,type=bind,consistency=cached",
     ],
     // OPTIONAL: run commands after creation, e.g. automatic donwload of weights or datasets
     // "postCreateCommand": "sh .devcontainer/postcreate.sh",  // relative to project root
