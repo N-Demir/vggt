@@ -69,4 +69,4 @@ WORKDIR vggt
 
 
 # Install vggt
-RUN pip install -e .
+RUN pip install -e ".[demo]"

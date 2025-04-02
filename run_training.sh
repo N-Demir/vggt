@@ -15,7 +15,7 @@ fi
 # Run the training
 echo "Running vggt"
 
-python vggt_to_colmap.py --image_dir $DATASET --output_dir $DATASET/sparse_vggt
+python vggt_to_colmap.py --image_dir $DATASET/images --output_dir $DATASET/sparse_vggt --binary
 
 
 # Sync results back to Google Cloud Storage only if dataset argument was provided
