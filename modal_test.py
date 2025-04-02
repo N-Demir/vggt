@@ -12,9 +12,9 @@ app = modal.App("vggt")
 #     ),
 # ).add_local_dir(".", "/root/")
 
-image = modal.Image.from_dockerfile("Dockerfile")
+image = modal.Image.from_dockerfile("Dockerfile").add_local_dir(".", "/vggt/")
 
-@app.function(gpu="T4", image=image, secrets=[modal.Secret.from_name("gcp-credentials")], timeout=3600)
+@app.function(gpu="A100-80GB", image=image, secrets=[modal.Secret.from_name("gcp-credentials")], timeout=3600)
 def train_vggt(dataset: str | None = None):
     print("Current working directory:", os.getcwd()) # Note that this is /root and the modal file is copied in here..
 
