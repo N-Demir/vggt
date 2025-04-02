@@ -1,0 +1,30 @@
+{
+    "build": {
+      "dockerfile": "../Dockerfile",  // location of Dockerfile relative to .devcontainer folder
+      "args": {
+        "runtime": "nvidia"
+      }
+    },
+    "workspaceFolder": "/workspace/vggt",
+    "runArgs": [
+      "--runtime=nvidia",
+      "--cap-add=SYS_PTRACE",
+      "--shm-size=24g",
+    ],
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "ms-python.python",
+          "ms-python.vscode-pylance",
+          "ms-python.debugpy",
+          "ms-toolsai.tensorboard",
+          // TODO: Fill out with more relevant extensions that I like using
+        ]
+      }
+    },
+    "mounts": [
+      "source=/home/ndemir/vggt,target=/workspace/vggt,type=bind,consistency=cached",
+    ],
+    // OPTIONAL: run commands after creation, e.g. automatic donwload of weights or datasets
+    // "postCreateCommand": "sh .devcontainer/postcreate.sh",  // relative to project root
+  }
