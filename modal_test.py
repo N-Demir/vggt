@@ -15,7 +15,7 @@ app = modal.App("vggt")
 image = modal.Image.from_dockerfile("Dockerfile")
 
 @app.function(gpu="T4", image=image, secrets=[modal.Secret.from_name("gcp-credentials")], timeout=3600)
-def train_vggsfm(dataset: str | None = None):
+def train_vggt(dataset: str | None = None):
     print("Current working directory:", os.getcwd()) # Note that this is /root and the modal file is copied in here..
 
     # Make the shell script executable
@@ -31,4 +31,4 @@ def train_vggsfm(dataset: str | None = None):
 
 @app.local_entrypoint()
 def main(dataset: str | None = None):
-    train_vggsfm.remote(dataset)
+    train_vggt.remote(dataset)
