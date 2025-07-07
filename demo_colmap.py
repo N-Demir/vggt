@@ -9,6 +9,7 @@ import numpy as np
 import os
 import copy
 import shutil
+import subprocess
 import torch
 import torch.nn.functional as F
 
@@ -103,9 +104,26 @@ def demo_fn(args):
     # Copy images folder to output directory
     input_images_dir = scene_path / "images"
     image_dir = output_dir / "images"
+    
+    # Using rsync to copy images because it's faster than shutil.copytree and other pythonic ways
     if input_images_dir.exists():
-        shutil.copytree(input_images_dir, image_dir, dirs_exist_ok=True)
-        print(f"Copied images from {input_images_dir} to {image_dir}")
+        print(f"Copying images using rsync from {input_images_dir} to {image_dir}...")
+
+        # Create destination directory
+        image_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Run rsync with progress
+        cmd = [
+            "rsync", 
+            "-av",  # archive mode, verbose
+            "--progress",  # show progress
+            "--stats",  # show transfer statistics
+            f"{input_images_dir}/",  # source with trailing slash
+            f"{image_dir}/"  # destination
+        ]
+        
+        subprocess.run(cmd)
+
     else:
         raise ValueError(f"Images directory not found: {input_images_dir}")
 

@@ -45,23 +45,6 @@ RUN apt-get update && apt-get install -y curl gnupg && \
     tmux \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the service account key file
-COPY gcs-tour-project-service-account-key.json .
-
-# Authenticate with Google Cloud
-RUN gcloud auth activate-service-account --key-file=gcs-tour-project-service-account-key.json && \
-    gcloud config set project tour-project-442218
-
-# Update conda
-RUN conda update -n base -c defaults conda -y
-RUN conda init bash && \
-    echo "conda activate base" >> ~/.bashrc
-RUN conda config --add channels defaults
-
-# Make sure conda is in the PATH
-ENV PATH /opt/conda/bin:$PATH
-
-
 # Download the repo
 RUN git clone https://github.com/N-Demir/vggt.git
 
