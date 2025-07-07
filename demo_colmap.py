@@ -6,9 +6,9 @@
 
 import random
 import numpy as np
-import glob
 import os
 import copy
+import shutil
 import torch
 import torch.nn.functional as F
 
@@ -94,6 +94,21 @@ def demo_fn(args):
     # Print configuration
     print("Arguments:", vars(args))
 
+    # Create output directory with "_vggt" suffix
+    scene_path = Path(args.scene_dir)
+    output_dir = scene_path.parent / (scene_path.name + "_vggt")
+    output_dir.mkdir(exist_ok=True)
+    print(f"Created output directory: {output_dir}")
+
+    # Copy images folder to output directory
+    input_images_dir = scene_path / "images"
+    image_dir = output_dir / "images"
+    if input_images_dir.exists():
+        shutil.copytree(input_images_dir, image_dir, dirs_exist_ok=True)
+        print(f"Copied images from {input_images_dir} to {image_dir}")
+    else:
+        raise ValueError(f"Images directory not found: {input_images_dir}")
+
     # Set seed for reproducibility
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -118,18 +133,18 @@ def demo_fn(args):
     print(f"Model loaded")
 
     # Get image paths and preprocess them
-    image_dir = os.path.join(args.scene_dir, "images")
-    image_path_list = glob.glob(os.path.join(image_dir, "*"))
+    image_dir = scene_path / "images"
+    image_path_list = list(image_dir.glob("*"))
     if len(image_path_list) == 0:
         raise ValueError(f"No images found in {image_dir}")
-    base_image_path_list = [os.path.basename(path) for path in image_path_list]
+    base_image_path_list = [path.name for path in image_path_list]
 
     # Load images and original coordinates
     # Load Image in 1024, while running VGGT with 518
     vggt_fixed_resolution = 518
     img_load_resolution = 1024
 
-    images, original_coords = load_and_preprocess_images_square(image_path_list, img_load_resolution)
+    images, original_coords = load_and_preprocess_images_square([str(path) for path in image_path_list], img_load_resolution)
     images = images.to(device)
     original_coords = original_coords.to(device)
     print(f"Loaded {len(images)} images from {image_dir}")
@@ -240,13 +255,13 @@ def demo_fn(args):
         shared_camera=shared_camera,
     )
 
-    print(f"Saving reconstruction to {args.scene_dir}/sparse/0")
-    sparse_reconstruction_dir = os.path.join(args.scene_dir, "sparse/0")
-    os.makedirs(sparse_reconstruction_dir, exist_ok=True)
-    reconstruction.write(sparse_reconstruction_dir)
+    print(f"Saving reconstruction to {output_dir}/sparse/0")
+    sparse_reconstruction_dir = output_dir / "sparse" / "0"
+    sparse_reconstruction_dir.mkdir(parents=True, exist_ok=True)
+    reconstruction.write(str(sparse_reconstruction_dir))
 
     # Save point cloud for fast visualization
-    trimesh.PointCloud(points_3d, colors=points_rgb).export(os.path.join(sparse_reconstruction_dir, "points.ply"))
+    trimesh.PointCloud(points_3d, colors=points_rgb).export(str(sparse_reconstruction_dir / "points.ply"))
 
     return True
 
@@ -309,17 +324,18 @@ A script to run the VGGT model for 3D reconstruction from image sequences.
 Directory Structure
 ------------------
 Input:
-    input_folder/
+    scene_dir/
     └── images/            # Source images for reconstruction
 
 Output:
-    output_folder/
-    ├── images/
+    scene_dir_vggt/        # Output directory with "_vggt" suffix
+    ├── images/            # Copied images from input
     ├── sparse/           # Reconstruction results
-    │   ├── cameras.bin   # Camera parameters (COLMAP format)
-    │   ├── images.bin    # Pose for each image (COLMAP format)
-    │   ├── points3D.bin  # 3D points (COLMAP format)
-    │   └── points.ply    # Point cloud visualization file 
+        ├── 0/            # Reconstruction results for each image
+            ├── cameras.bin   # Camera parameters (COLMAP format)
+            ├── images.bin    # Pose for each image (COLMAP format)
+            ├── points3D.bin  # 3D points (COLMAP format)
+            └── points.ply    # Point cloud visualization file 
     └── visuals/          # Visualization outputs TODO
 
 Key Features
@@ -327,4 +343,5 @@ Key Features
 • Dual-mode Support: Run reconstructions using either VGGT or VGGT+BA
 • Resolution Preservation: Maintains original image resolution in camera parameters and tracks
 • COLMAP Compatibility: Exports results in standard COLMAP sparse reconstruction format
+• Output Isolation: Creates separate output directory to preserve original input data
 """
