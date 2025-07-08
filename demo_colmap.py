@@ -96,7 +96,7 @@ def demo_fn(args):
     print("Arguments:", vars(args))
 
     # Create output directory with "_vggt" suffix
-    scene_path = Path(args.scene_dir)
+    scene_path = Path(args.scene_dir).expanduser()
     output_dir = scene_path.parent / (scene_path.name + "_vggt")
     output_dir.mkdir(exist_ok=True)
     print(f"Created output directory: {output_dir}")
