@@ -17,7 +17,8 @@ def dummy_function():
     # Testing whether this could get models downloaded and cuda things prebuilt
     # but needs to be placed into a python function unfortunately so that modal can properly
     # run it with `run_function` and attach a volume
-    raise NotImplementedError("Not implemented")
+    print("Running dummy function")
+    subprocess.run("python demo_colmap.py --scene_dir=~/data/examples/kitchen --no_fine_tracking --no_use_ba --query_frame_num=1 --max_query_pts=100", shell=True, cwd=".")
 
 
 app = modal.App("vggt", image=modal.Image.from_dockerfile(Path(__file__).parent / "Dockerfile")
@@ -54,8 +55,8 @@ app = modal.App("vggt", image=modal.Image.from_dockerfile(Path(__file__).parent 
     .run_commands("pip install -e '.[demo]'")
     .run_commands("apt install rsync -y") # for copying images
     # # Post install, try actually running a demo example to prebuild/download things
-    # .run_commands("git pull")
-    # .run_function(dummy_function, secrets=MODAL_SECRETS, volumes=MODAL_VOLUMES, gpu="T4")
+    .run_commands("git pull")
+    .run_function(dummy_function, secrets=MODAL_SECRETS, volumes=MODAL_VOLUMES, gpu="T4")
     # Get the latest code
     .run_commands("git pull", force_build=True)
 )
@@ -83,7 +84,7 @@ def wait_for_port(host, port, q):
     secrets=MODAL_SECRETS,
     volumes=MODAL_VOLUMES
 )
-def launch_ssh_server(q):
+def run_server(q):
     with modal.forward(22, unencrypted=True) as tunnel:
         host, port = tunnel.tcp_socket
         threading.Thread(target=wait_for_port, args=(host, port, q)).start()
@@ -123,16 +124,16 @@ def run_shell_script(shell_file_path: str):
 
 
 @app.local_entrypoint()
-def main(as_server: bool = False, shell_file: str | None = None):   
-    if as_server:
+def main(server: bool = False, shell_file: str | None = None):   
+    if server:
         import sshtunnel
 
         with modal.Queue.ephemeral() as q:
-            launch_ssh_server.spawn(q)
+            run_server.spawn(q)
             host, port = q.get()
             print(f"SSH server running at {host}:{port}")
 
-            server = sshtunnel.SSHTunnelForwarder(
+            ssh_tunnel = sshtunnel.SSHTunnelForwarder(
                 (host, port),
                 ssh_username="root",
                 ssh_password=" ",
@@ -142,14 +143,14 @@ def main(as_server: bool = False, shell_file: str | None = None):
             )
 
             try:
-                server.start()
-                print(f"SSH tunnel forwarded to localhost:{server.local_bind_port}")
+                ssh_tunnel.start()
+                print(f"SSH tunnel forwarded to localhost:{ssh_tunnel.local_bind_port}")
                 while True:
                     time.sleep(1)
             except KeyboardInterrupt:
                 print("\nShutting down SSH tunnel...")
             finally:
-                server.stop()
+                ssh_tunnel.stop()
 
     if shell_file:
         # Run the shell script on the remote instance
