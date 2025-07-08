@@ -220,7 +220,7 @@ def demo_fn(args):
             raise ValueError("No reconstruction can be built with BA")
 
         # Bundle Adjustment
-        ba_options = pycolmap.BundleAdjustmentOptions()
+        ba_options = pycolmap.BundleAdjustmentOptions(max_num_iterations=300)
         pycolmap.bundle_adjustment(reconstruction, ba_options)
 
         reconstruction_resolution = img_load_resolution
