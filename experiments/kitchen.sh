@@ -1,1 +1,1 @@
-python demo_colmap.py --scene_dir=~/data/examples/kitchen
+python demo_colmap.py --scene_dir=~/data/examples/kitchen --use_ba

@@ -56,7 +56,7 @@ app = modal.App("vggt", image=modal.Image.from_dockerfile(Path(__file__).parent 
     .run_commands("apt install rsync -y") # for copying images
     # # Post install, try actually running a demo example to prebuild/download things
     .run_commands("git pull", force_build=True)
-    .run_function(dummy_function, secrets=MODAL_SECRETS, volumes=MODAL_VOLUMES, gpu="T4")
+    .run_function(dummy_function, secrets=MODAL_SECRETS, volumes=MODAL_VOLUMES, gpu="A100-80GB")
     # Get the latest code
     .run_commands("git pull", force_build=True)
 )
