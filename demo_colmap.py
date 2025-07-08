@@ -118,7 +118,8 @@ def demo_fn(args):
             "-av",  # archive mode, verbose
             "--progress",  # show progress
             "--stats",  # show transfer statistics
-            f"{input_images_dir}",  # source with trailing slash
+            "--delete",  # delete files that are not in the source
+            f"{input_images_dir}/",  # source with trailing slash
             f"{image_dir}"  # destination
         ]
         
