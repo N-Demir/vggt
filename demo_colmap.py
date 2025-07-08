@@ -118,8 +118,8 @@ def demo_fn(args):
             "-av",  # archive mode, verbose
             "--progress",  # show progress
             "--stats",  # show transfer statistics
-            f"{input_images_dir}/",  # source with trailing slash
-            f"{image_dir}/"  # destination
+            f"{input_images_dir}",  # source with trailing slash
+            f"{image_dir}"  # destination
         ]
         
         subprocess.run(cmd)
