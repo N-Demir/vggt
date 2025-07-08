@@ -18,7 +18,7 @@ def dummy_function():
     # but needs to be placed into a python function unfortunately so that modal can properly
     # run it with `run_function` and attach a volume
     print("Running dummy function")
-    subprocess.run("python demo_colmap.py --scene_dir=~/data/examples/kitchen --no-fine_tracking --no-use_ba --query_frame_num=1 --max_query_pts=100", shell=True, cwd=".")
+    subprocess.run("python demo_colmap.py --scene_dir=~/data/examples/kitchen --query_frame_num=1 --max_query_pts=100", shell=True, cwd=".")
 
 
 app = modal.App("vggt", image=modal.Image.from_dockerfile(Path(__file__).parent / "Dockerfile")
