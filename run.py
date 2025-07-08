@@ -89,7 +89,16 @@ def launch_ssh_server(q):
         threading.Thread(target=wait_for_port, args=(host, port, q)).start()
 
         # Added these commands to get the env variables that docker loads in through ENV to show up in my ssh
-        subprocess.run("env | awk '{print \"export \" $1}' > ~/env_variables.sh", shell=True)
+        import os
+        import shlex
+        from pathlib import Path
+
+        output_file = Path.home() / "env_variables.sh"
+
+        with open(output_file, "w") as f:
+            for key, value in os.environ.items():
+                escaped_value = shlex.quote(value)
+                f.write(f'export {key}={escaped_value}\n')
         subprocess.run("echo 'source ~/env_variables.sh' >> ~/.bashrc", shell=True)
 
         subprocess.run(["/usr/sbin/sshd", "-D"])  # TODO: I don't know why I need to start this here
