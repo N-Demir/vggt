@@ -46,10 +46,9 @@ app = modal.App("vggt", image=modal.Image.from_dockerfile(Path(__file__).parent 
     .env({"TORCH_CUDA_ARCH_LIST": "7.5;8.0;8.9"})
     # Add Our Code and Install EDGS
     .workdir("/root/workspace")
-    # Clone EDGS repository
-    .run_commands("git clone https://github.com/N-Demir/vggt.git --recursive")
-    .workdir("/root/workspace/vggt")
-    # Install 
+    # Clone EDGS repository into current directory
+    .run_commands("git clone https://github.com/N-Demir/vggt.git . --recursive")
+    # Install
     .run_commands("pip install -r requirements.txt")
     .run_commands("pip install -r requirements_demo.txt")
     .run_commands("pip install -e '.[demo]'")
