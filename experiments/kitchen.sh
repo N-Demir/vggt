@@ -1,0 +1,1 @@
+python demo_colmap.py --scene_dir=~/data/examples/kitchen
